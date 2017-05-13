@@ -2,7 +2,7 @@
 (function () {
     var Gaze = function (initX, initY) {
         var self = this;
-        const TIMEOUT = 2000;
+        var TIMEOUT = 2000;
         self.x = initX;
         self.y = initY;
         self.timeoutToken;
@@ -41,34 +41,42 @@
         }
     }
 
+    var to2Digit = function(num) {
+        return num < 10 ? '0' + num : num + '';
+    } 
+
     //Init function
     var init = function() {
-        var wallpaper = document.getElementById('wallpaper');
+        //Init params
         var gaze = new Gaze(wallpaper.width / 2, wallpaper.height / 2);
+        const IMAGES = [
+            'fall-1.jpg',
+            'spring-1.jpg',
+            'summer-1.jpg',
+            'winter-1.jpg',
+            'winter-2.jpg'
+        ];
+        
+        //Init screen components
+        const randImage = IMAGES[Math.floor(Math.random() * IMAGES.length)];
+        $('#wallpaper').css('background-image', 'url("img/' + randImage + '")');
 
-        var gazerIsOn = undefined;
-        // webgazer.setRegression('ridge') /* currently must set regression and tracker */
-        //     .setTracker('clmtrackr')
-        //     .setGazeListener(function(data, clock) {
-        //         if (data == null) {
-        //             return;
-        //         }
-        //         var xprediction = data.x; //these x coordinates are relative to the viewport 
-        //         var yprediction = data.y; //these y coordinates are relative to the viewport
-        //         console.log(xprediction + ', ' + yprediction); //elapsed time is based on time since begin was called
-        //         // gaze.setGaze(xprediction, yprediction);
-        //     })
-        //     .showPredictionPoints(true); /* shows a square every 100 milliseconds where current prediction is */
+        //
+        const now = new Date();
+        $('#time').text(now.getHours() + ':' + to2Digit(now.getMinutes()));
+        
+        $('#greeting').text('Good ' + 
+            (now.getHours() < 12 ? 
+                'morning'
+                :
+                now.getHours() < 18 ?
+                    'afternoon'
+                    :
+                    now.getHours() < 22 ?
+                        'evening'
+                        :
+                        'night') + ', you.');
 
-        // webgazer.setGazeListener(function (data, elapsedTime) {
-        //     if (data == null) {
-        //         return;
-        //     }
-        //     var xprediction = data.x; //these x coordinates are relative to the viewport 
-        //     var yprediction = data.y; //these y coordinates are relative to the viewport
-        //     console.log(xprediction + ', ' + yprediction); //elapsed time is based on time since begin was called
-        //     gaze.setGaze(xprediction, yprediction);
-        // });
 
         //Register event callbacks
         document.onmousemove = function(e) {
@@ -76,21 +84,6 @@
             var y = e.clientY;
             
             gaze.setGaze(x, y);
-        };
-
-        document.onkeypress = function (e) {
-            if (e.keyCode == 32) {
-                if (gazerIsOn === undefined) {
-                    window.localStorage.clear();
-                    webgazer.begin()
-                } else if (gazerIsOn) {
-                    webgazer.pause();
-                } else {
-                    webgazer.resume();
-                }
-                gazerIsOn = !gazerIsOn;
-
-            }
         };
     }();
 
