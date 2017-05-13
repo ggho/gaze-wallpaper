@@ -1,0 +1,35 @@
+html {
+    font-family: 'Lato', sans-serif;
+    font-weight: lighter;
+}
+
+.wallpaper {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+    background-image: url('img/winter-1.jpg');
+    background-repeat: no-repeat;
+
+    background-size: 100%; /*initial value*/
+    background-position: center;
+
+    transition: background-size 3s ease-in;
+}
+
+.wallpaper--zoom {
+    background-size: 140%;
+}
+
+.gaze-pointer {
+    display: none;
+    width: 5px;
+    height: 5px;
+    background-color: red;
+    position: absolute;
+    top: 100px;
+    left: 100px;
+    transform: translate(-5px, -5px);
+}
