@@ -35,17 +35,27 @@ html {
     bottom: 0;
     left: 0;
     z-index: -1;
+    background-color: black;
     background-image: url('img/winter-1.jpg');
     background-repeat: no-repeat;
 
     background-size: 100%; /*initial value*/
     background-position: center;
 
-    transition: background-size 3s ease-in;
+    transition: background-size 3s ease-in-out;
 }
 
 .wallpaper--zoom {
-    background-size: 140%;
+    background-size: 160%;
+}
+
+.wallpaper--gray {
+    
+}
+
+.toolbar {
+    background: url('img/toolbar.png') no-repeat;
+    background-size: cover;
 }
 
 .gaze-pointer {
