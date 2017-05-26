@@ -1,15 +1,13 @@
 
 (function () {
-    var Gaze = function (initX, initY) {
+    //TODO: use notify instead passing view obj
+    var Gaze = function (view, initX, initY) {
         var self = this;
         var TIMEOUT = 2000;
         self.x = initX;
         self.y = initY;
-        self.timeoutToken;
-
-        var pointer = $('#gaze-pointer');
-        var wallpaper = $('#wallpaper');
-
+        self.timeoutToken = undefined;
+        self.isLongGaze = false;        
 
         self.setGaze = function (x, y) {
             self.x = x;
@@ -17,27 +15,63 @@
 
             clearTimeout(self.timeoutToken);
             self.timeoutToken = setTimeout(function() {
-                self.x = undefined;
-                self.y = undefined;
-
-                //TODO: use notify
-                wallpaper.removeClass('wallpaper--zoom');
-                pointer.hide();
+                self.unsetGaze();
             }, TIMEOUT);
 
-            //TODO: use notify 
+            
+            view.setGaze(x, y);
+            
+            console.log(self.isLongGaze);
+            if(self.isLongGaze) {
+                view.setLongGaze(x, y); 
+            }  
+        };
+
+        self.getGaze = function () {
+            return {
+                x: self.x,
+                y: self.y
+            };
+        };
+
+        self.unsetGaze = function() {
+            self.x = undefined;
+            self.y = undefined;
+            self.isLongGaze = false;
+
+            view.unsetGaze();
+        };
+
+        self.setIsLongGaze = function(isLongGaze) {
+            self.isLongGaze = isLongGaze;
+        }
+    };
+
+    var View = function() {
+        var self = this;
+
+        var pointer = $('#gaze-pointer');
+        var wallpaper = $('.wallpaper');
+        var wallpaperOverlay = $('.wallpaper__overlay');
+
+        self.setGaze = function(x, y) {
             wallpaper.addClass('wallpaper--zoom');
             wallpaper.css('background-position', x/wallpaper.width()*100 + '% ' + y/wallpaper.height()*100 + '%');
 
             pointer.css('left', x + 'px');
             pointer.css('top', y + 'px');
             pointer.show();
-        }
-        self.getGaze = function () {
-            return {
-                x: self.x,
-                y: self.y
-            }
+        };
+
+        self.setLongGaze = function(x, y) {
+            wallpaperOverlay.css('-webkit-mask-box-image', 'radial-gradient(circle at ' + x + 'px ' + y +'px, transparent 0, transparent 100px, black 200px)');
+            wallpaperOverlay.show();
+        };
+
+        self.unsetGaze = function() {
+            wallpaper.removeClass('wallpaper--zoom');
+            pointer.hide();
+            wallpaperOverlay.hide();
         }
     }
 
@@ -48,7 +82,9 @@
     //Init function
     var init = function() {
         //Init params
-        var gaze = new Gaze(wallpaper.width / 2, wallpaper.height / 2);
+        var view = new View();
+        var gaze = new Gaze(view, $('.wallpaper').width() / 2, $('.wallpaper').height() / 2); 
+
         const IMAGES = [
             'fall-1.jpg',
             'spring-1.jpg',
@@ -59,7 +95,7 @@
         
         //Init screen components
         const randImage = IMAGES[Math.floor(Math.random() * IMAGES.length)];
-        $('#wallpaper').css('background-image', 'url("img/' + randImage + '")');
+        $('.wallpaper').css('background-image', 'url("img/' + randImage + '")');
 
         //
         const now = new Date();
@@ -75,10 +111,18 @@
                     now.getHours() < 22 ?
                         'evening'
                         :
-                        'night') + ', you.');
+                        'night') + ', Gigi.');
 
 
         //Register event callbacks
+        $('#wallpaper').on('transitionend webkitTransitionEnd oTransitionEnd', function (e) {
+            gaze.setIsLongGaze(true);
+            if($(this).hasClass('wallpaper--zoom')) {
+                $('.wallpaper__overlay').css('-webkit-mask-box-image', 'radial-gradient(circle at ' + gaze.getGaze().x + 'px ' + gaze.getGaze().y +'px, transparent 0, transparent 100px, black 200px)');
+                $('.wallpaper__overlay').show();
+            }
+        });
+
         document.onmousemove = function(e) {
             var x = e.clientX;
             var y = e.clientY;
@@ -86,10 +130,5 @@
             gaze.setGaze(x, y);
         };
     }();
-
-
-
-
-
-
+    
 })();
