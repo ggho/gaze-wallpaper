@@ -20,8 +20,6 @@
 
             
             view.setGaze(x, y);
-            
-            console.log(self.isLongGaze);
             if(self.isLongGaze) {
                 view.setLongGaze(x, y); 
             }  
@@ -37,6 +35,8 @@
         self.unsetGaze = function() {
             self.x = undefined;
             self.y = undefined;
+            
+            clearTimeout(self.timeoutToken);
             self.isLongGaze = false;
 
             view.unsetGaze();
@@ -111,13 +111,14 @@
                     now.getHours() < 22 ?
                         'evening'
                         :
-                        'night') + ', Gigi.');
+                        'night') + ', Erland.');
 
 
         //Register event callbacks
         $('#wallpaper').on('transitionend webkitTransitionEnd oTransitionEnd', function (e) {
-            gaze.setIsLongGaze(true);
+            
             if($(this).hasClass('wallpaper--zoom')) {
+                gaze.setIsLongGaze(true);
                 $('.wallpaper__overlay').css('-webkit-mask-box-image', 'radial-gradient(circle at ' + gaze.getGaze().x + 'px ' + gaze.getGaze().y +'px, transparent 0, transparent 100px, black 200px)');
                 $('.wallpaper__overlay').show();
             }
